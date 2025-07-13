@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PokéList</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <h1>PokéList</h1>
+    <form method="get" action="/">
+        <input type="text" name="name" placeholder="Pokémon Name suchen..." />
+        <button type="submit">Suchen</button>
+    </form>
+    {% if cards %}
+  <h2>{{ cards|length }} Ergebnisse: </h2><br>
+    <ul>
+  {% for card in cards %}
+    <li>
+        <img src="{{ card['images']['large'] }}" alt="{{ card['name'] }}">
+        <strong>{{ card['name'] }}</strong><br>
+        <small>{{ card['set_name'] }} ({{ card['id'] }})</small><br>
+        <small>{{ card['release_date'] }}</small><br>
+        <small>{{ card['rarity'] }}</small>
+    </li>
+  {% endfor %}
+</ul>
+    {% else %}
+  <p>Keine Karten gefunden</p>
+    {% endif %}
+<small>{{ cards.length }}</small>
+</body>
+</html>

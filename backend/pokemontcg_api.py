@@ -1,6 +1,5 @@
 import pandas as pd
 import requests
-import PokeList
 import yaml
 
 # API-Endpunkt und Schlüssel,
@@ -45,26 +44,16 @@ def get_cards(*pokemon: str | int) -> pd.DataFrame:
             cards = data.get("data", [])
             df = pd.DataFrame(cards)
             if not df.empty:
-                # set-Spalte zerlegen
-                set_df = df["set"].apply(pd.Series)  # `set`-Objekt in separate Spalten zerlegen
-                set_columns = ["name", "series", "releaseDate"]  # Wähle gewünschte Felder
-                set_df = set_df[set_columns]  # Nur relevante Spalten behalten
+                set_df = df["set"].apply(pd.Series)
+                set_columns = ["name", "series", "releaseDate"]
+                set_df = set_df[set_columns]
                 set_df = set_df.rename(columns={'name': 'set_name'})
                 set_df = set_df.rename(columns={'releaseDate': 'release_date'})
-                # Füge die extrahierten Spalten dem Haupt-DataFrame hinzu
                 df = pd.concat([df.drop(columns=["set"]), set_df], axis=1)
-                # Konvertiere `releaseDate` zu einem Datumsformat
                 df["release_date"] = pd.to_datetime(df["release_date"], errors="coerce")
-                # Sortiere nach `releaseDate`
                 df = df.sort_values(by=["release_date", "id"], ascending=True)
             return df
         else:
             print(f"Fehler: {response.status_code} - {response.text}")
     except requests.exceptions.Timeout:
         print("Timeout! Server has not responded in 5 Seconds.")
-
-
-df = get_cards(8)
-PokeList.print_list(df)
-#PokeList.save_list(df, "arbok")
-
