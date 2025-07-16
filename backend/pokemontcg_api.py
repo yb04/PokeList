@@ -1,14 +1,21 @@
+import os
+
 import pandas as pd
 import requests
 import yaml
+from pokemontcgsdk import Card
+from pokemontcgsdk import Set
+from pokemontcgsdk import RestClient
 
-# API-Endpunkt und Schlüssel,
-with open("config.yaml", 'r') as y:
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+config_path = os.path.join(script_dir, "..", "config.yaml")
+with open(config_path, 'r') as y:
     config = yaml.safe_load(y)
 API_KEY = config["api_key"]
 BASE_URL = "https://api.pokemontcg.io/v2/cards"
+RestClient.configure(API_KEY)
 
-# Header für die Authentifizierung
 headers = {
     "X-Api-Key": API_KEY
 }
@@ -38,7 +45,7 @@ def get_cards(*pokemon: str | int) -> pd.DataFrame:
     }
 
     try:
-        response = requests.get(BASE_URL, headers=headers, params=params, timeout=5)
+        response = requests.get(BASE_URL, headers=headers, params=params, timeout=10)
         if response.status_code == 200:
             data = response.json()
             cards = data.get("data", [])
@@ -56,4 +63,17 @@ def get_cards(*pokemon: str | int) -> pd.DataFrame:
         else:
             print(f"Fehler: {response.status_code} - {response.text}")
     except requests.exceptions.Timeout:
-        print("Timeout! Server has not responded in 5 Seconds.")
+        print("Timeout! Server has not responded in 10 Seconds.")
+
+
+def get_card(pokemon: str):
+    url = f"https://api.pokemontcg.io/v2/cards?q=name:{pokemon}"
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        return response
+    except requests.exceptions.Timeout:
+        print("Timeout – Server antwortet nicht.")
+    except requests.exceptions.RequestException as e:
+        print(f"Anfrage fehlgeschlagen: {e}")
+

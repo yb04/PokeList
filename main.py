@@ -1,24 +1,40 @@
 from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
-from backend.pokemontcg_api import get_cards
+from starlette.staticfiles import StaticFiles
 import pandas as pd
+import backend.pokemontcg_api
 
 app = FastAPI()
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+CARD_DF: pd.DataFrame = pd.DataFrame()
 
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 async def index(request: Request, name: str = ""):
+    global CARD_DF
     cards = []
+    count = 0
     if name:
-        tokens = [x.strip() for x in name.replace(",", " ").split()] # Split input by comma or space
-        df: pd.DataFrame = get_cards(*tokens)
-        if df is not None and not df.empty:
-            df["release_date"] = pd.to_datetime(df["release_date"], errors="coerce")
-            df["release_date"] = df["release_date"].dt.strftime("%Y-%m-%d")
-            df = df.sort_values(by=["release_date", "id"], ascending=True)
-            cards = df.to_dict(orient="records")
-    return templates.TemplateResponse("index.html", {"request": request, "cards": cards})
+        CARD_DF = backend.pokemontcg_api.get_cards(name)
+        if not CARD_DF.empty:
+            cards = CARD_DF.to_dict("records")
+            count = len(cards)
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "cards": cards,
+        "count": count
+    })
+
+
+@app.get("/card/{card_id}", response_class=HTMLResponse)
+async def card_detail(request: Request, card_id: str):
+    global CARD_DF
+    if not CARD_DF.empty:
+        row = CARD_DF[CARD_DF["id"] == card_id]
+        if not row.empty:
+            card = row.iloc[0].to_dict()
+            return templates.TemplateResponse("card.html", {"request": request, "card": card})
+    return HTMLResponse("Karte nicht gefunden", status_code=404)

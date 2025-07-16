@@ -17,16 +17,20 @@
     <ul>
   {% for card in cards %}
     <li>
+        <a href="/card/{{ card['id'] }}">
         <img src="{{ card['images']['large'] }}" alt="{{ card['name'] }}">
+        </a>
         <strong>{{ card['name'] }}</strong><br>
         <small>{{ card['set_name'] }} ({{ card['id'] }})</small><br>
         <small>{{ card['release_date'] }}</small><br>
         <small>{{ card['rarity'] }}</small>
     </li>
   {% endfor %}
-</ul>
+</ul><br>
+        <a href="https://www.cardmarket.com/de/Pokemon/Products/Search?searchString={{ cards[0]['name'] }}" target="_blank">
+            <p><strong>Auf Cardmarket suchen</strong></p></a>
     {% else %}
-  <p>Keine Karten gefunden</p>
+  <h2>Keine Karten gefunden</h2>
     {% endif %}
 <small>{{ cards.length }}</small>
 </body>

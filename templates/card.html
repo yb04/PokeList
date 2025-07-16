@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ card['name'] }}</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+<div class="card-container">
+  <div class="card-text">
+    <h1>{{ card['name'] + " " + card['id'] }}</h1>
+    <p><strong>Set:</strong> {{ card['set_name'] }}</p>
+    <p><strong>Serie:</strong> {{ card['series'] }}</p>
+    <p><strong>Release:</strong> {{ card['release_date'] }}</p>
+    <p><strong>Pokedex:</strong> {{ card['nationalPokedexNumbers'] }}</p>
+    <p><strong>Seltenheit:</strong> {{ card.get('rarity', 'unbekannt') }}</p>
+    <a href="https://www.cardmarket.com/de/Pokemon/Products/Search?searchString={{ card['name'] }}" target="_blank">
+      <p><strong>Auf Cardmarket suchen</strong></p>
+</a>
+  </div>
+  <div class="card-image">
+    <img src="{{ card['images']['large'] }}" style="max-width: 200px;" alt="{{ card['name'] }}">  </div>
+</div>
+  <a href="/">Zurück</a>
+</body>
+</html>

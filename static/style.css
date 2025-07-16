@@ -112,6 +112,26 @@ li small {
   font-size: 0.85rem;
 }
 
+.card-container {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  align-items: flex-start;
+  margin-top: 1rem;
+}
+
+.card-text {
+  flex: 1;
+}
+
+.card-image img {
+  max-width: 50px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
   ul {
