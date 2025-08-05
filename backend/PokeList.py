@@ -52,7 +52,7 @@ def get_list(pl: pd.DataFrame):
     """
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
-    return pl[['name', 'id', 'nationalPokedexNumbers', 'rarity', 'set_name', 'release_date']]
+    return pl[['name', 'id', 'nationalPokedexNumbers', 'rarity', 'set_name', 'release_date', 'image_url', 'owned']]
 
 
 def save_list(pl: pd.DataFrame, path):
@@ -63,7 +63,7 @@ def save_list(pl: pd.DataFrame, path):
     :return:
     """
     l = get_list(pl)
-    l.to_csv("output/"+path+".csv", header=True)
+    l.to_csv(path, header=True, index=False)
 
 
 pok = ["arcanine", "zapdos", "charmander"]

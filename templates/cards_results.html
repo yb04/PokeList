@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Suche</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+{% if cards %}
+  <h2>{{ cards|length }} Ergebnisse: </h2><br>
+<h3>Besitzt: {{ owned_count }} / {{ total }} Fehlen: {{ missing_count }}</h3>
+<form method="post" action="/update_owned">
+    <ul>
+  {% for card in cards %}
+    <li>
+        <a href="/card/{{ card['id'] }}">
+        <img src="{{ card['image_url'] }}" alt="{{ card['name'] }}">
+        </a>
+        <strong>{{ card['name'] }}</strong><br>
+        <small>{{ card['set_name'] }} ({{ card['id'] }})</small><br>
+        <small>{{ card['release_date'] }}</small><br>
+        <small>{{ card['rarity'] }}</small>
+        <input type="checkbox" name="owned_{{ card['id'] }}" {% if card['owned'] %}checked{% endif %} />
+            Besitzt
+    </li>
+  {% endfor %}
+</ul>
+<button type="submit">Besitz Aktualisieren</button>
+</form>
+<br>
+        <a href="https://www.cardmarket.com/de/Pokemon/Products/Search?searchString={{ cards[0]['name'] }}" target="_blank">
+            <p><strong>Auf Cardmarket suchen</strong></p></a>
+    <small>{{ cards.length }}</small><br>
+        <form action="/download" method="get">
+      <button type="submit">Download</button>
+    </form><br>
+    {% else %}
+  <h2>Keine Karten gefunden</h2><br>
+    {% endif %}
+    {% if recent %}
+  <h3>Zuletzt gesucht:</h3><br>
+  <ul>
+    {% for term in recent %}
+      <li><a href="/?name={{ term }}">{{ term }}</a></li>
+    {% endfor %}
+  </ul>
+{% endif %}
+  <a href="/">Zurück</a>
+</body>
+</html>

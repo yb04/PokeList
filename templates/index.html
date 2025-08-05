@@ -12,26 +12,14 @@
         <input type="text" name="name" placeholder="Pokémon Name suchen..." />
         <button type="submit">Suchen</button>
     </form>
-    {% if cards %}
-  <h2>{{ cards|length }} Ergebnisse: </h2><br>
-    <ul>
-  {% for card in cards %}
-    <li>
-        <a href="/card/{{ card['id'] }}">
-        <img src="{{ card['images']['large'] }}" alt="{{ card['name'] }}">
-        </a>
-        <strong>{{ card['name'] }}</strong><br>
-        <small>{{ card['set_name'] }} ({{ card['id'] }})</small><br>
-        <small>{{ card['release_date'] }}</small><br>
-        <small>{{ card['rarity'] }}</small>
-    </li>
-  {% endfor %}
-</ul><br>
-        <a href="https://www.cardmarket.com/de/Pokemon/Products/Search?searchString={{ cards[0]['name'] }}" target="_blank">
-            <p><strong>Auf Cardmarket suchen</strong></p></a>
-    {% else %}
-  <h2>Keine Karten gefunden</h2>
-    {% endif %}
-<small>{{ cards.length }}</small>
+    <form method="get" action="/card/">
+        <input type="text" name="name" placeholder="Spezifische karte suchen..." />
+        <button type="submit">Suchen</button>
+    </form>
+    <h2>Eigene Sammlung hochladen</h2>
+    <form action="/upload_csv" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".csv" required>
+    <button type="submit">Hochladen</button>
+</form>
 </body>
 </html>
