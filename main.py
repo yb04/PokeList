@@ -105,7 +105,8 @@ async def show_results(request: Request):
     })
 
 
-@app.post("/update_owned") #TODO: need to show last page and refresh for it to show, is working good, /update_owned opens in url (needs to be updated /results)
+@app.post("/update_owned")  # TODO: need to show last page and refresh for it to show, is working good, /update_owned
+# opens in url (needs to be updated /results)
 async def update_owned(request: Request):
     form = await request.form()
     global CARD_DF
@@ -113,10 +114,8 @@ async def update_owned(request: Request):
         return RedirectResponse(url="/results", status_code=303)
     if "owned" not in CARD_DF.columns:
         CARD_DF["owned"] = False
-    # Checkboxes übernehmen
     for idx, row in CARD_DF.iterrows():
         owned_key = f"owned_{row['id']}"
         CARD_DF.at[idx, "owned"] = owned_key in form
-    # CSV sofort speichern
     CARD_DF.to_csv(CSV_PATH, index=False)
     return RedirectResponse(url="/results", status_code=200)

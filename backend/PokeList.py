@@ -64,13 +64,3 @@ def save_list(pl: pd.DataFrame, path):
     """
     l = get_list(pl)
     l.to_csv(path, header=True, index=False)
-
-
-pok = ["arcanine", "zapdos", "charmander"]
-#pl = read_file("pokelist.csv")
-#pl.info()
-#arcanines = get_pokemon_list(59, 58, pokelist=pl)
-#print_list(arcanines)
-#save_list(arcanines, "Arcanine_list")'
-
-

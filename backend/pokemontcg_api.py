@@ -1,11 +1,8 @@
+from pokemontcgsdk import RestClient
 import os
-
 import pandas as pd
 import requests
 import yaml
-from pokemontcgsdk import Card
-from pokemontcgsdk import Set
-from pokemontcgsdk import RestClient
 import httpx
 import certifi
 
@@ -46,7 +43,7 @@ def get_cards(*pokemon: str | int) -> pd.DataFrame:
     }
 
     try:
-        print("Requesting:", BASE_URL, params)  # Debug-Ausgabe
+        print("Requesting:", BASE_URL, params)
         with httpx.Client(timeout=1000, verify=certifi.where()) as client:
             response = client.get(BASE_URL, headers=headers, params=params)
             print("Status:", response.status_code)
