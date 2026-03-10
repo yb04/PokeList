@@ -1,6 +1,4 @@
-import os
-
-from fastapi import FastAPI, Request, File, UploadFile
+from fastapi import FastAPI, Request, File, UploadFile, status
 from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from starlette.staticfiles import StaticFiles
@@ -8,8 +6,9 @@ import pandas as pd
 import backend.pokemontcg_api
 import backend.PokeList
 import shutil
+import os
 
-
+# uvicorn main:app --reload
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -105,17 +104,41 @@ async def show_results(request: Request):
     })
 
 
-@app.post("/update_owned")  # TODO: need to show last page and refresh for it to show, is working good, /update_owned
+@app.post("/update_owned")
 # opens in url (needs to be updated /results)
 async def update_owned(request: Request):
     form = await request.form()
     global CARD_DF
     if CARD_DF is None or CARD_DF.empty:
-        return RedirectResponse(url="/results", status_code=303)
+        return RedirectResponse(url="/results",  status_code=status.HTTP_303_SEE_OTHER)  # reload site
     if "owned" not in CARD_DF.columns:
         CARD_DF["owned"] = False
     for idx, row in CARD_DF.iterrows():
         owned_key = f"owned_{row['id']}"
         CARD_DF.at[idx, "owned"] = owned_key in form
     CARD_DF.to_csv(CSV_PATH, index=False)
-    return RedirectResponse(url="/results", status_code=200)
+    return RedirectResponse(url="/results", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@app.post("/update_list")
+async def update_list(file: UploadFile = File(...)):
+    if not file.filename.endswith(".csv"):
+        return {"error": "Nur CSV-Dateien erlaubt."}
+
+    # Neue Liste als "old_list" → owned-Info mergen
+    with open("temp_upload.csv", "wb") as buffer:  # temp Name
+        shutil.copyfileobj(file.file, buffer)
+
+    old_list = pd.read_csv("temp_upload.csv", sep=",")
+    if 'owned' not in old_list.columns:
+        return {"error": "Owned Spalte nicht gefunden."}
+
+    ids = backend.PokeList.get_list_identifier(old_list)
+    updated_list = backend.pokemontcg_api.get_cards(ids)
+    # Merge owned-Status (vektorisiert, schnell)
+    owned_ids = old_list[old_list['owned']]['id'].tolist()
+    updated_list.loc[updated_list['id'].isin(owned_ids), 'owned'] = True
+    updated_list.to_csv(CSV_PATH, index=False)
+    os.remove("temp_upload.csv")
+    return RedirectResponse(url="/results", status_code=status.HTTP_303_SEE_OTHER)
+
